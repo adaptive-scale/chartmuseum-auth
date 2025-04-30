@@ -28,7 +28,7 @@ import (
 	"io/ioutil"
 	"strings"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func containsAction(actionsList []string, action string) bool {
@@ -90,8 +90,8 @@ func getTokenCustomClaims(token *jwt.Token) (*Claims, error) {
 		return nil, err
 	}
 	claims := Claims{}
-	json.Unmarshal(byteData, &claims)
-	return &claims, nil
+	err = json.Unmarshal(byteData, &claims)
+	return &claims, err
 }
 
 // adapted from "" method here: https://github.com/docker/libtrust/blob/aabc10ec26b754e797f9028f4589c5b7bd90dc20/util.go#L194

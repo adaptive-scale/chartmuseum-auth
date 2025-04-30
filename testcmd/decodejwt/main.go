@@ -23,7 +23,7 @@ import (
 
 	cmAuth "github.com/chartmuseum/auth"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func main() {

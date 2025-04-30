@@ -20,7 +20,7 @@ import (
 	"crypto/rsa"
 	"time"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 const (
@@ -30,7 +30,7 @@ const (
 
 type (
 	Claims struct {
-		*jwt.StandardClaims
+		jwt.RegisteredClaims
 		Access   []AccessEntry `json:"access"`
 		Audience string        `json:"aud,omitempty"`
 		Issuer   string        `json:"iss,omitempty"`
@@ -99,21 +99,22 @@ func (tokenGenerator *TokenGenerator) GenerateToken(access []AccessEntry, expira
 		token.Header["kid"] = tokenGenerator.KID
 	}
 
-	standardClaims := jwt.StandardClaims{}
-
 	now := time.Now()
-	standardClaims.IssuedAt = now.Unix()
+
+	claims := &Claims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			IssuedAt: jwt.NewNumericDate(now),
+		},
+		Access:   access,
+		Audience: tokenGenerator.Audience,
+		Issuer:   tokenGenerator.Issuer,
+	}
 
 	if expiration > 0 {
-		standardClaims.ExpiresAt = time.Now().Add(expiration).Unix()
+		claims.ExpiresAt = jwt.NewNumericDate(now.Add(expiration))
 	}
 
-	token.Claims = &Claims{
-		StandardClaims: &standardClaims,
-		Access:         access,
-		Audience:       tokenGenerator.Audience,
-		Issuer:         tokenGenerator.Issuer,
-	}
+	token.Claims = claims
 	return token.SignedString(tokenGenerator.PrivateKey)
 }
 
